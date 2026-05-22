@@ -19,13 +19,10 @@ workflow CELLBENDER {
     main:
 
         def out_dir   = "${params.outdir}/sc_processing"
-
-        def cb_out_dir = "/mnt/immunocompnas1/projects/liver-met/processing/cellbender"
         
         
         check_cb_samplesheet(params.samplesheet)
         
-        /*
         ch_data_dirs = check_cb_samplesheet.out.validated_csv
             .splitCsv(header: true)
             .map { row -> 
@@ -51,18 +48,7 @@ workflow CELLBENDER {
             }
         
         ch_demux_input = ch_data_dirs.join(cellbender.out.cb_matrix_raw)
-        */
-       
-        ch_demux_input = check_cb_samplesheet.out.validated_csv
-            .splitCsv(header: true)
-            .map { row -> 
-                def dataset = row.dataset
-                def alignment_dir = file(row.alignment_dir, type: 'dir', checkIfExists: true)
-                
-                def cb_matrix_raw = file("${cb_out_dir}/${dataset}/raw_feature_bc_matrix_cellbender.h5", checkIfExists: true)
-                
-                return tuple(dataset, alignment_dir, out_dir, cb_matrix_raw) 
-            }
+
         
 
         demultiplex(ch_demux_input)
